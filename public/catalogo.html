@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de recetas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root[data-theme="dark"] {
+            --bg: #0F1115;
+            --bg-glow: rgba(91, 110, 245, 0.10);
+            --surface: #1B1E24;
+            --surface-hi: #22262E;
+            --img-bg-1: #292D35;
+            --img-bg-2: #15171B;
+            --edge: #2B2F38;
+            --edge-hi: #3C4250;
+            --ink: #EDEEF0;
+            --muted: #8B92A0;
+            --accent: #6E7EF7;
+            --accent-glow: rgba(110, 126, 247, 0.4);
+            --shine: rgba(255, 255, 255, 0.10);
+            --shadow-strong: rgba(0, 0, 0, 0.65);
+            --pill-bg: #1B1E24;
+            --pill-bg-active: #6E7EF7;
+            --pill-text-active: #0F1115;
+        }
+
+        :root[data-theme="light"] {
+            --bg: #F3F1EC;
+            --bg-glow: rgba(91, 110, 245, 0.06);
+            --surface: #FFFFFF;
+            --surface-hi: #FFFFFF;
+            --img-bg-1: #FFFFFF;
+            --img-bg-2: #ECEAE3;
+            --edge: #E1DED5;
+            --edge-hi: #CFCBBE;
+            --ink: #1C1E1B;
+            --muted: #736F63;
+            --accent: #4655D6;
+            --accent-glow: rgba(70, 85, 214, 0.25);
+            --shine: rgba(255, 255, 255, 0.55);
+            --shadow-strong: rgba(60, 55, 40, 0.18);
+            --pill-bg: #FFFFFF;
+            --pill-bg-active: #1C1E1B;
+            --pill-text-active: #F3F1EC;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at 15% 0%, var(--bg-glow), transparent 45%), var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        header {
+            padding: 52px 32px 28px;
+            text-align: center;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 40px;
+            right: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface-hi);
+            border: 1px solid var(--edge);
+            color: var(--muted);
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 var(--shine);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: clamp(28px, 4vw, 38px);
+            margin: 0 0 10px;
+            letter-spacing: -0.01em;
+        }
+
+        header p.tag {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        #contador {
+            display: inline-block;
+            margin-top: 18px;
+            background: var(--surface-hi);
+            border: 1px solid var(--edge);
+            color: var(--muted);
+            font-size: 12.5px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            box-shadow: inset 0 1px 0 var(--shine);
+        }
+
+        .tabs {
+            max-width: 1220px;
+            margin: 32px auto 0;
+            padding: 0 32px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            background: var(--pill-bg);
+            border: 1px solid var(--edge);
+            padding: 8px 16px;
+            border-radius: 100px;
+            cursor: pointer;
+            text-transform: capitalize;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            border-color: var(--edge-hi);
+            color: var(--ink);
+        }
+
+        .tab.active {
+            background: var(--pill-bg-active);
+            color: var(--pill-text-active);
+            border-color: var(--pill-bg-active);
+        }
+
+        main {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 36px 32px 90px;
+        }
+
+        #estado {
+            text-align: center;
+            color: var(--muted);
+            font-size: 15px;
+            padding: 80px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+            gap: 26px;
+            perspective: 1600px;
+        }
+
+        .card {
+            background: linear-gradient(160deg, var(--surface-hi), var(--surface));
+            border: 1px solid var(--edge);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 1px 0 var(--shine), 0 16px 32px -16px var(--shadow-strong), 0 4px 10px -4px var(--shadow-strong);
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.12s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            background: radial-gradient(circle 180px at var(--mx, 50%) var(--my, 0%), var(--shine), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            border-color: var(--edge-hi);
+            box-shadow: inset 0 1px 0 var(--shine), 0 34px 50px -18px var(--shadow-strong), 0 0 0 1px var(--accent-glow), 0 12px 28px -8px var(--accent-glow);
+        }
+
+        .card-img {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            background: radial-gradient(circle at 50% 30%, var(--img-bg-1), var(--img-bg-2) 78%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateZ(20px);
+            overflow: hidden;
+        }
+
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: drop-shadow(0 12px 16px var(--shadow-strong));
+        }
+
+        .card-body {
+            padding: 18px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            background: var(--surface);
+            transform: translateZ(8px);
+        }
+
+        .card-cat {
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin: 0 0 8px;
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 15.5px;
+            line-height: 1.3;
+            margin: 0 0 6px;
+        }
+
+        .card-desc {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0 0 16px;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--edge);
+        }
+
+        .area {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--ink);
+        }
+
+        .area-label {
+            color: var(--muted);
+            font-weight: 400;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="theme-toggle" id="themeToggle">
+            <span id="themeLabel">Modo claro</span>
+        </button>
+        <h1>Catálogo de recetas</h1>
+        <p class="tag">Recetas en vivo, sincronizadas directamente con TheMealDB.</p>
+        <span id="contador"></span>
+    </header>
+
+    <div class="tabs" id="tabs"></div>
+
+    <main>
+        <div id="estado">Cargando recetas…</div>
+        <div class="grid" id="catalogo"></div>
+    </main>
+
+    <script>
+        let todos = [];
+        let categoriaActiva = 'todas';
+
+        /* --- Tema --- */
+        const toggle = document.getElementById('themeToggle');
+        const label = document.getElementById('themeLabel');
+        function aplicarTema(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            label.textContent = t === 'dark' ? 'Modo claro' : 'Modo oscuro';
+        }
+        toggle.addEventListener('click', () => {
+            const actual = document.documentElement.getAttribute('data-theme');
+            aplicarTema(actual === 'dark' ? 'light' : 'dark');
+        });
+
+        /* --- Tilt 3D por cursor --- */
+        function activarTilt(card) {
+            card.addEventListener('mousemove', (e) => {
+                const r = card.getBoundingClientRect();
+                const x = (e.clientX - r.left) / r.width;
+                const y = (e.clientY - r.top) / r.height;
+                const rotY = (x - 0.5) * 16;
+                const rotX = (0.5 - y) * 16;
+                card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px)`;
+                card.style.setProperty('--mx', `${x * 100}%`);
+                card.style.setProperty('--my', `${y * 100}%`);
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        }
+
+        /* --- Render --- */
+        function render() {
+            const contenedor = document.getElementById('catalogo');
+            contenedor.innerHTML = '';
+            const lista = categoriaActiva === 'todas'
+                ? todos
+                : todos.filter(p => p.strCategory === categoriaActiva);
+
+            lista.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const instrucciones = (p.strInstructions || '').trim();
+
+                card.innerHTML = `
+          <div class="card-img">
+            <img src="${p.strMealThumb}" alt="${p.strMeal}" loading="lazy">
+          </div>
+          <div class="card-body">
+            <p class="card-cat">${p.strCategory || 'Sin categoría'}</p>
+            <h3 class="card-title">${p.strMeal}</h3>
+            <p class="card-desc">${instrucciones}</p>
+            <div class="card-foot">
+              <span class="area"><span class="area-label">Origen · </span>${p.strArea || 'Sin especificar'}</span>
+            </div>
+          </div>
+        `;
+                contenedor.appendChild(card);
+                activarTilt(card);
+            });
+        }
+
+        function renderTabs() {
+            const categorias = ['todas', ...new Set(todos.map(p => p.strCategory).filter(Boolean))];
+            const tabs = document.getElementById('tabs');
+            tabs.innerHTML = '';
+            categorias.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'tab' + (cat === categoriaActiva ? ' active' : '');
+                btn.textContent = cat === 'todas' ? 'Todas' : cat;
+                btn.addEventListener('click', () => {
+                    categoriaActiva = cat;
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    render();
+                });
+                tabs.appendChild(btn);
+            });
+        }
+
+        fetch('/platillos-api')
+            .then(res => res.json())
+            .then(platillos => {
+                const estado = document.getElementById('estado');
+                const contador = document.getElementById('contador');
+
+                if (!platillos || platillos.length === 0) {
+                    estado.textContent = 'No hay recetas disponibles.';
+                    return;
+                }
+
+                estado.remove();
+                todos = platillos;
+                contador.textContent = `${platillos.length} receta${platillos.length === 1 ? '' : 's'} en catálogo`;
+                renderTabs();
+                render();
+            })
+            .catch(err => {
+                document.getElementById('estado').textContent = 'Error al cargar las recetas.';
+                console.error(err);
+            });
+    </script>
+
+</body>
+
+</html>
